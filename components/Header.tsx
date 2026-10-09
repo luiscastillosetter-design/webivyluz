@@ -42,14 +42,14 @@ export default function Header() {
   return (
     <>
       <header
-        className={`fixed top-0 z-[100] w-full transition-all duration-300 ${
+        className={`fixed top-0 z-[100] w-full border-none outline-none transition-all duration-300 ${
           isScrolled
-            ? "bg-black/75 backdrop-blur-md border-b border-white/10 shadow-2xl py-2.5 text-accent-cream"
+            ? "bg-black/80 backdrop-blur-md shadow-lg py-2.5 text-accent-cream"
             : "bg-transparent py-4 text-accent-cream"
         } px-6 md:px-12 flex justify-between items-center`}
       >
         {/* Logo (Conserva su color crema natural y tamaño estilizado) */}
-        <Link href="/" className="flex items-center relative z-10">
+        <Link href="/" className="flex items-center relative z-10 border-none outline-none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/media/logocrema.png"
