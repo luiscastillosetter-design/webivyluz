@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { supabase } from "@/lib/supabase";
 
 const COUNSELING_TOPICS = [
   "Orientación Matrimonial y Parejas",
@@ -38,13 +39,34 @@ export default function AgendarPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSent, setIsSent] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSent(true);
-    }, 600);
+
+    try {
+      const notasCompletas = `Email: ${email} | Día: ${preferredDay || "Cualquiera"} | Horario: ${preferredTime || "Cualquiera"}${notes ? ` | Detalle: ${notes}` : ""}`;
+
+      const { error } = await supabase.from("consejeria").insert([
+        {
+          nombre: fullName,
+          telefono: phone,
+          motivo: topic,
+          modalidad: modality,
+          fecha_solicitada: null,
+          estado: "pendiente",
+          notas_pastorales: notasCompletas,
+        },
+      ]);
+
+      if (error) {
+        console.error("Error al registrar consejería:", error);
+      }
+    } catch (err) {
+      console.error("Error de conexión:", err);
+    }
+
+    setIsSubmitting(false);
+    setIsSent(true);
   };
 
   return (

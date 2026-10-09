@@ -1,5 +1,6 @@
 "use client";
 
+import { supabase } from "@/lib/supabase";
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -105,16 +106,35 @@ export default function SoyNuevoPage() {
     );
   };
 
-  const handleFinishFunnel = (e: React.FormEvent) => {
+  const handleFinishFunnel = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // Simulación de envío lista para conectar con el webhook oficial
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setFunnelStep(4);
-    }, 600);
-  };
 
+    try {
+      const notasDetalle = `Intereses: ${selectedTopics.join(", ")} | Medio: ${howFound} | ¿Tiene líder?: ${hasLeader}`;
+
+      const { error } = await supabase.from("creyentes").insert([
+        {
+          nombre: contactName,
+          telefono: contactPhone,
+          sector_direccion: contactSector,
+          sede: "Auditorio Principal",
+          estado_discipular: "nuevo",
+          notas: notasDetalle,
+        },
+      ]);
+
+      if (error) {
+        console.error("Error guardando en Supabase:", error);
+      }
+    } catch (err) {
+      console.error("Error de conexión:", err);
+    }
+
+    setIsSubmitting(false);
+    setFunnelStep(4);
+  };
+  
   return (
     <div className="min-h-screen w-full bg-[#F7F7F5] text-zinc-900 flex flex-col">
       <Header />
