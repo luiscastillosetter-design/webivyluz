@@ -44,47 +44,39 @@ export default function Header() {
       <header
         className={`fixed top-0 z-[100] w-full transition-all duration-300 ${
           isScrolled
-            ? "bg-white/95 backdrop-blur-md shadow-sm py-3 text-zinc-900"
-            : "bg-gradient-to-b from-black/80 via-black/40 to-transparent py-5 text-white"
+            ? "bg-black/75 backdrop-blur-md border-b border-white/10 shadow-2xl py-2.5 text-accent-cream"
+            : "bg-transparent py-4 text-accent-cream"
         } px-6 md:px-12 flex justify-between items-center`}
       >
-        {/* Logo */}
+        {/* Logo (Conserva su color crema natural y tamaño estilizado) */}
         <Link href="/" className="flex items-center relative z-10">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/media/logocrema.png"
             alt="Iglesia Iviluz"
-            style={{ height: "110px", width: "auto", display: "block" }}
-            className={`object-contain transition-all duration-300 ${
-              isScrolled ? "invert brightness-0" : ""
-            }`}
+            style={{ height: isScrolled ? "75px" : "95px", width: "auto", display: "block" }}
+            className="object-contain transition-all duration-300"
           />
         </Link>
 
-        {/* Enlaces Desktop (Estilo Life.Church / MCI) */}
+        {/* Enlaces Desktop en tono crema */}
         <nav className="hidden lg:flex items-center gap-8 text-xs font-bold uppercase tracking-widest">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className={`transition-colors duration-200 hover:text-amber-200 ${
-                isScrolled ? "text-zinc-700 hover:text-zinc-950" : "text-zinc-200"
-              }`}
+              className="text-accent-cream hover:text-white transition-colors duration-200"
             >
               {link.label}
             </Link>
           ))}
         </nav>
 
-        {/* Acciones del lado derecho */}
+        {/* Acciones: Botón Dar y Menú Hamburguesa */}
         <div className="flex items-center gap-4">
           <Link
             href="/dar"
-            className={`hidden sm:inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-wider transition-all duration-300 shadow-sm ${
-              isScrolled
-                ? "bg-zinc-900 text-white hover:bg-zinc-800"
-                : "bg-accent-cream text-zinc-950 hover:bg-white"
-            }`}
+            className="hidden sm:inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-wider transition-all duration-300 shadow-md bg-accent-cream text-zinc-950 hover:bg-white hover:scale-105"
           >
             <Heart className="h-3.5 w-3.5 fill-current" />
             Dar
@@ -96,11 +88,7 @@ export default function Header() {
             aria-label="Abrir menú"
             className="p-2 transition-opacity hover:opacity-85 relative z-10 cursor-pointer"
           >
-            <Menu
-              className={`h-7 w-7 md:h-8 md:w-8 transition-colors duration-300 ${
-                isScrolled ? "text-zinc-900" : "text-white"
-              }`}
-            />
+            <Menu className="h-7 w-7 md:h-8 md:w-8 text-accent-cream hover:text-white transition-colors duration-300" />
           </button>
         </div>
       </header>
