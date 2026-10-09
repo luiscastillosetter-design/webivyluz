@@ -72,7 +72,7 @@ export default function Hero({ onOpenChat }: HeroProps) {
       />
 
       {/* Capa de oscurecimiento totalmente pareja al 25% (20-25% para legibilidad sin perder la cara) */}
-      <div className="absolute inset-0 z-0 bg-black/25 pointer-events-none" />
+      <div className="absolute inset-0 z-0 bg-black/45 pointer-events-none" />
 
       {/* Lateral izquierdo: Redes sociales discretas */}
       <div className="hidden md:flex absolute left-8 top-1/2 z-20 -translate-y-1/2 flex-col items-center gap-6">
