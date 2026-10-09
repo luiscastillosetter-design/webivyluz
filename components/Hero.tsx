@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import { Sparkles, MapPin, PlayCircle, HeartHandshake, MessageCircle } from "lucide-react";
 
 function InstagramIcon() {
   return (
@@ -13,109 +14,173 @@ function InstagramIcon() {
   );
 }
 
-function WhatsAppIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5" aria-hidden="true">
-      <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.29-1.39a9.9 9.9 0 0 0 4.7 1.2h.01c5.46 0 9.9-4.45 9.9-9.9C21.96 6.45 17.5 2 12.04 2zm0 18.11h-.01a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.14.82.84-3.06-.2-.31a8.2 8.2 0 0 1-1.26-4.38c0-4.53 3.69-8.22 8.24-8.22 2.2 0 4.27.86 5.82 2.42a8.16 8.16 0 0 1 2.41 5.81c0 4.53-3.69 8.25-8.22 8.25zm4.51-6.16c-.25-.12-1.46-.72-1.69-.8-.23-.08-.39-.12-.56.12-.16.25-.64.8-.78.96-.14.16-.29.18-.54.06-.25-.12-1.04-.38-1.98-1.22-.73-.65-1.23-1.45-1.37-1.7-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.16.04-.31-.02-.43-.06-.12-.56-1.35-.77-1.85-.2-.48-.41-.42-.56-.43-.14-.01-.31-.01-.48-.01-.16 0-.43.06-.66.31-.23.25-.86.84-.86 2.04 0 1.2.88 2.37 1 2.53.12.16 1.73 2.64 4.19 3.7.59.25 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.46-.6 1.66-1.17.21-.58.21-1.08.15-1.18-.06-.1-.23-.16-.48-.28z" />
-    </svg>
-  );
-}
-
-const TITLE_WORDS = ["ILUMINANDO", "LAS", "NACIONES"];
-
-const wordVariants = {
-  hidden: { opacity: 0, y: 60 },
-  visible: (index: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.8,
-      delay: 0.3 + index * 0.15,
-      ease: [0.16, 1, 0.3, 1] as const,
-    },
-  }),
-};
-
 interface HeroProps {
   onOpenChat: () => void;
 }
 
+const QUICK_ACTIONS = [
+  {
+    title: "Soy Nuevo",
+    subtitle: "Conoce nuestra casa",
+    href: "/soy-nuevo",
+    icon: Sparkles,
+  },
+  {
+    title: "Nuestras Sedes",
+    subtitle: "Horarios y ubicación",
+    href: "/sedes",
+    icon: MapPin,
+  },
+  {
+    title: "Ver Prédicas",
+    subtitle: "Mensajes en video",
+    href: "/predicas",
+    icon: PlayCircle,
+  },
+  {
+    title: "Petición de Oración",
+    subtitle: "Oramos por ti",
+    href: "/oracion",
+    icon: HeartHandshake,
+  },
+];
+
 export default function Hero({ onOpenChat }: HeroProps) {
   return (
-    <section id="inicio" className="relative h-screen min-h-screen w-full bg-zinc-900 z-10 overflow-hidden">
+    <section id="inicio" className="relative min-h-screen w-full bg-zinc-950 flex flex-col justify-between pt-28 pb-10 px-6 md:px-12 overflow-hidden">
       
-      <div className="absolute inset-0 z-0 bg-gradient-to-br from-[#F7F7F5] to-zinc-700 animate-pulse pointer-events-none" />
+      {/* Video Desktop (16:9 Horizontal) */}
+      <video
+        src="/media/videohero-desktop.mp4"
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="metadata"
+        className="hidden md:block absolute inset-0 z-0 h-full w-full object-cover object-center opacity-55 pointer-events-none"
+      />
 
+      {/* Video Móvil (9:16 Vertical) */}
       <video
         src="/media/videohero.mp4"
         autoPlay
         loop
         muted
         playsInline
-        className="absolute inset-0 z-0 h-full w-full object-cover object-top transition-opacity duration-1000 pointer-events-none"
+        preload="metadata"
+        className="block md:hidden absolute inset-0 z-0 h-full w-full object-cover object-top opacity-55 pointer-events-none"
       />
 
-      <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/60 via-black/20 to-black/70 pointer-events-none" />
+      {/* Degradado superior e inferior para legibilidad */}
+      <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/80 via-black/40 to-black/90 pointer-events-none" />
 
-      {/* Lado izquierdo: Redes Sociales */}
-      <div className="absolute left-4 md:left-10 top-1/2 z-20 flex -translate-y-1/2 flex-col items-center gap-6">
-        <div className="flex flex-col items-center gap-4">
-          <a
-            href="https://www.instagram.com/iglesiaiviluz/"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Instagram"
-            className="text-white transition-transform duration-300 hover:scale-110 drop-shadow-md"
-          >
-            <InstagramIcon />
-          </a>
-          <a
-            href="https://wa.me/" 
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="WhatsApp"
-            className="text-white transition-transform duration-300 hover:scale-110 drop-shadow-md"
-          >
-            <WhatsAppIcon />
-          </a>
-        </div>
+      {/* Lateral izquierdo: Redes sociales discretas */}
+      <div className="hidden md:flex absolute left-8 top-1/2 z-20 -translate-y-1/2 flex-col items-center gap-6">
+        <a
+          href="https://www.instagram.com/iglesiaiviluz/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Instagram"
+          className="text-white/80 transition-transform duration-300 hover:scale-110 hover:text-white drop-shadow-md"
+        >
+          <InstagramIcon />
+        </a>
+        <div className="h-10 w-px bg-white/20" />
         <span 
-          className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/95 drop-shadow-sm rotate-180" 
+          className="text-[9px] font-bold uppercase tracking-[0.3em] text-white/60 drop-shadow-sm rotate-180" 
           style={{ writingMode: "vertical-rl" }}
         >
           SÍGUENOS
         </span>
       </div>
 
-      {/* Lado derecho: DESCUBRE */}
-      <div className="absolute right-4 md:right-10 top-1/2 z-20 flex -translate-y-1/2 flex-col items-center gap-4">
-        <ChevronDown className="h-5 w-5 text-white animate-bounce drop-shadow-md" />
-        <span 
-          className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/95 drop-shadow-sm rotate-180" 
-          style={{ writingMode: "vertical-rl" }}
+      {/* Centro: Título Principal y Visión Oficial */}
+      <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center justify-center text-center my-auto pt-6">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 backdrop-blur-md mb-6"
         >
-          DESCUBRE
-        </span>
+          <span className="h-2 w-2 rounded-full bg-amber-300 animate-pulse" />
+          <span className="text-[11px] font-bold tracking-widest uppercase text-white/90">
+            Iglesia Iviluz · Barquisimeto
+          </span>
+        </motion.div>
+
+        <motion.h1
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="text-4xl sm:text-6xl md:text-8xl font-black uppercase tracking-tighter text-white drop-shadow-2xl leading-[0.95]"
+        >
+          ILUMINANDO LAS NACIONES
+        </motion.h1>
+
+        {/* Visión oficial dictada por el Pastor */}
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="mt-6 max-w-2xl text-sm sm:text-base md:text-lg text-zinc-300 font-medium leading-relaxed drop-shadow"
+        >
+          &ldquo;Ganar almas y formarlos como discípulos de Cristo, que vayan y sean luz en las naciones.&rdquo;
+        </motion.p>
+
+        {/* Botón rápido para abrir el chat de consejería */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+          className="mt-8 flex flex-wrap justify-center gap-4"
+        >
+          <button
+            type="button"
+            onClick={onOpenChat}
+            className="inline-flex items-center gap-2.5 rounded-full bg-accent-cream px-6 py-3 text-xs font-bold uppercase tracking-wider text-zinc-950 transition-all duration-300 hover:bg-white hover:scale-105 shadow-xl cursor-pointer"
+          >
+            <MessageCircle className="h-4 w-4 text-zinc-950" />
+            ¿Necesitas hablar con alguien?
+          </button>
+        </motion.div>
       </div>
 
-      {/* Título Central */}
-      <div className="relative z-10 flex h-full w-full flex-col items-center justify-center px-12 text-center pointer-events-none">
-        <h1 className="flex flex-wrap items-center justify-center gap-x-3 md:gap-x-4 text-4xl font-black uppercase leading-tight tracking-tighter text-white md:text-8xl drop-shadow-2xl">
-          {TITLE_WORDS.map((word, index) => (
-            <span key={word} className="overflow-hidden py-1 md:py-2">
-              <motion.span
-                custom={index}
-                initial="hidden"
-                animate="visible"
-                variants={wordVariants}
-                className="inline-block"
+      {/* Parte Inferior: Los 4 Accesos Rápidos (Life.Church Style) */}
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.6 }}
+        className="relative z-10 mx-auto w-full max-w-6xl pt-6"
+      >
+        <p className="text-center text-[11px] font-bold uppercase tracking-[0.25em] text-white/60 mb-4">
+          Da tu siguiente paso
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          {QUICK_ACTIONS.map((action) => {
+            const Icon = action.icon;
+            return (
+              <Link
+                key={action.href}
+                href={action.href}
+                className="group flex items-center gap-4 rounded-2xl border border-white/15 bg-white/10 p-4 text-left backdrop-blur-xl transition-all duration-300 hover:border-accent-cream/60 hover:bg-white/20 hover:-translate-y-1 shadow-lg"
               >
-                {word}
-              </motion.span>
-            </span>
-          ))}
-        </h1>
-      </div>
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10 text-accent-cream transition-colors group-hover:bg-accent-cream group-hover:text-zinc-950">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white group-hover:text-amber-200 transition-colors">
+                    {action.title}
+                  </h3>
+                  <p className="text-xs text-zinc-300">
+                    {action.subtitle}
+                  </p>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </motion.div>
     </section>
   );
 }

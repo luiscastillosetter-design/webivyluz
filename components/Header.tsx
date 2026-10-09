@@ -2,8 +2,18 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+
+const NAV_LINKS = [
+  { label: "Inicio", href: "/" },
+  { label: "Soy Nuevo", href: "/soy-nuevo" },
+  { label: "Sedes", href: "/sedes" },
+  { label: "Prédicas", href: "/predicas" },
+  { label: "Ministerios", href: "/ministerios" },
+  { label: "Oración", href: "/oracion" },
+  { label: "Consejería", href: "/agendar" },
+];
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -34,29 +44,68 @@ export default function Header() {
       <header
         className={`fixed top-0 z-[100] w-full transition-all duration-300 ${
           isScrolled
-            ? "bg-white/95 backdrop-blur-md shadow-sm py-3 pointer-events-auto"
-            : "bg-transparent py-6 pointer-events-auto" 
+            ? "bg-white/95 backdrop-blur-md shadow-sm py-3 text-zinc-900"
+            : "bg-gradient-to-b from-black/80 via-black/40 to-transparent py-5 text-white"
         } px-6 md:px-12 flex justify-between items-center`}
       >
-        <Link href="#inicio" className="flex items-center relative z-10">
+        {/* Logo */}
+        <Link href="/" className="flex items-center relative z-10">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/media/logocrema.png"
             alt="Iglesia Iviluz"
-            style={{ height: "72px", width: "auto", display: "block" }}
-            className={`object-contain transition-all duration-300 ${isScrolled ? 'invert brightness-0' : ''}`}
+            style={{ height: "110px", width: "auto", display: "block" }}
+            className={`object-contain transition-all duration-300 ${
+              isScrolled ? "invert brightness-0" : ""
+            }`}
           />
         </Link>
 
-        <button
-          type="button"
-          onClick={() => setIsMobileMenuOpen(true)}
-          aria-label="Abrir menú"
-          className="p-2 text-white transition-opacity hover:opacity-85 relative z-10 cursor-pointer pointer-events-auto"
-        >
-          <Menu className={`h-8 w-8 md:h-10 md:w-10 drop-shadow-lg transition-colors duration-300 ${isScrolled ? 'text-zinc-900' : 'text-white'}`} />
-        </button>
+        {/* Enlaces Desktop (Estilo Life.Church / MCI) */}
+        <nav className="hidden lg:flex items-center gap-8 text-xs font-bold uppercase tracking-widest">
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`transition-colors duration-200 hover:text-amber-200 ${
+                isScrolled ? "text-zinc-700 hover:text-zinc-950" : "text-zinc-200"
+              }`}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+
+        {/* Acciones del lado derecho */}
+        <div className="flex items-center gap-4">
+          <Link
+            href="/dar"
+            className={`hidden sm:inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-bold uppercase tracking-wider transition-all duration-300 shadow-sm ${
+              isScrolled
+                ? "bg-zinc-900 text-white hover:bg-zinc-800"
+                : "bg-accent-cream text-zinc-950 hover:bg-white"
+            }`}
+          >
+            <Heart className="h-3.5 w-3.5 fill-current" />
+            Dar
+          </Link>
+
+          <button
+            type="button"
+            onClick={() => setIsMobileMenuOpen(true)}
+            aria-label="Abrir menú"
+            className="p-2 transition-opacity hover:opacity-85 relative z-10 cursor-pointer"
+          >
+            <Menu
+              className={`h-7 w-7 md:h-8 md:w-8 transition-colors duration-300 ${
+                isScrolled ? "text-zinc-900" : "text-white"
+              }`}
+            />
+          </button>
+        </div>
       </header>
 
+      {/* Menú Lateral Desplegable */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
@@ -64,7 +113,7 @@ export default function Header() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[110] bg-black/60 backdrop-blur-md flex justify-end pointer-events-auto"
+            className="fixed inset-0 z-[110] bg-black/60 backdrop-blur-md flex justify-end"
           >
             <motion.div
               key="mobile-menu-panel"
@@ -72,34 +121,89 @@ export default function Header() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="w-[85vw] max-w-[400px] bg-white h-full shadow-2xl flex flex-col relative"
+              className="w-[85vw] max-w-[380px] bg-white h-full shadow-2xl flex flex-col relative"
             >
               <div className="flex justify-between items-center p-6 border-b border-zinc-100">
-                <span className="text-xs font-bold text-zinc-400 tracking-widest uppercase">Navegación</span>
+                <span className="text-xs font-bold text-zinc-400 tracking-widest uppercase">
+                  Navegación Iviluz
+                </span>
                 <button
                   type="button"
                   onClick={() => setIsMobileMenuOpen(false)}
                   aria-label="Cerrar menú"
-                  className="p-3 rounded-full bg-zinc-100 text-zinc-900 hover:bg-zinc-200 transition-colors cursor-pointer"
+                  className="p-2.5 rounded-full bg-zinc-100 text-zinc-900 hover:bg-zinc-200 transition-colors cursor-pointer"
                 >
-                  <X className="h-6 w-6" />
+                  <X className="h-5 w-5" />
                 </button>
               </div>
-              
-              <nav className="flex flex-col px-8 py-10 gap-8 text-2xl md:text-3xl font-black text-zinc-900 tracking-tighter flex-grow overflow-y-auto">
-                <Link href="#inicio" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-zinc-500 transition-colors">INICIO</Link>
-                <Link href="#horarios" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-zinc-500 transition-colors">HORARIOS</Link>
-                <Link href="#ministerios" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-zinc-500 transition-colors">MINISTERIOS</Link>
-                <Link href="/agendar" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-zinc-500 transition-colors">VISÍTANOS</Link>
-              </nav>
 
-              <div className="p-6 border-t border-zinc-200 bg-zinc-50">
+              <nav className="flex flex-col px-8 py-8 gap-6 text-xl font-black text-zinc-900 tracking-tight flex-grow overflow-y-auto">
+                <Link
+                  href="/"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="hover:text-amber-600 transition-colors"
+                >
+                  INICIO
+                </Link>
+                <Link
+                  href="/soy-nuevo"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="hover:text-amber-600 transition-colors"
+                >
+                  SOY NUEVO
+                </Link>
+                <Link
+                  href="/sedes"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="hover:text-amber-600 transition-colors"
+                >
+                  SEDES Y HORARIOS
+                </Link>
+                <Link
+                  href="/predicas"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="hover:text-amber-600 transition-colors"
+                >
+                  PRÉDICAS
+                </Link>
+                <Link
+                  href="/ministerios"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="hover:text-amber-600 transition-colors"
+                >
+                  MINISTERIOS
+                </Link>
+                <Link
+                  href="/oracion"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="hover:text-amber-600 transition-colors"
+                >
+                  PETICIONES DE ORACIÓN
+                </Link>
+                <Link
+                  href="/buena-voluntad"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="hover:text-amber-600 transition-colors"
+                >
+                  BUENA VOLUNTAD
+                </Link>
                 <Link
                   href="/agendar"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex w-full py-4 justify-center items-center bg-zinc-900 text-white text-sm font-bold tracking-wide rounded-xl hover:bg-zinc-800 transition-colors shadow-lg"
+                  className="hover:text-amber-600 transition-colors"
                 >
-                  PLANIFICA TU VISITA
+                  CONSEJERÍA PASTORAL
+                </Link>
+              </nav>
+
+              <div className="p-6 border-t border-zinc-200 bg-zinc-50 flex flex-col gap-3">
+                <Link
+                  href="/dar"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex w-full py-3.5 justify-center items-center gap-2 bg-zinc-900 text-white text-xs font-bold tracking-widest uppercase rounded-xl hover:bg-zinc-800 transition-colors shadow-md"
+                >
+                  <Heart className="h-4 w-4 fill-current text-accent-cream" />
+                  Ofrendar / Donar
                 </Link>
               </div>
             </motion.div>

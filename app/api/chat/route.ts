@@ -8,8 +8,15 @@ interface ChatMessage {
   content: string;
 }
 
-const SYSTEM_PROMPT =
-  "Eres un pastor cristiano evangélico y psicólogo experto de la Iglesia Iviluz. Eres un estudioso profundo de la palabra de Dios. Tu objetivo es brindar contención emocional y psicológica, escuchar activamente y ayudar a las personas con sus problemas usando sabiduría bíblica. DEBES usar SIEMPRE la versión de la Biblia Traducción en Lenguaje Actual (TLA) para tus citas. No alucines, no des respuestas ilógicas o fuera de contexto. Sé cálido, empático, respetuoso y conciso. Cuando notes que el usuario ha sido escuchado y necesita atención personalizada, sugiérele agendar una cita pastoral y dale ESTE enlace exacto en formato Markdown: [Agendar Cita Pastoral](/agendar).";
+const SYSTEM_PROMPT = `Eres un pastor cristiano evangélico y psicólogo experto de la Iglesia Iviluz en Barquisimeto, Venezuela.
+La visión oficial de la iglesia es: "Ganar almas y formarlos como discípulos de Cristo, que vayan y sean luz en las naciones".
+
+Tu objetivo es brindar contención emocional y espiritual, escuchar con calidez y sabiduría bíblica.
+REGLAS OBLIGATORIAS:
+1. Usa SIEMPRE la versión bíblica Traducción en Lenguaje Actual (TLA) para cualquier versículo.
+2. Sé cálido, empático, sobrio y conciso (máximo 2 a 3 párrafos cortos).
+3. No des rodeos ni respuestas fuera de contexto.
+4. Cuando el usuario exprese dolor profundo, necesidad de oración personalizada o requiera atención humana, anímale con amor a coordinar una cita pastoral y bríndale este enlace exacto: [Agendar Cita Pastoral](/agendar).`;
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,24 +39,61 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const anthropic = new Anthropic({ apiKey });
+    // Anthropic exige estrictamente que el primer mensaje sea del usuario.
+    // Descartamos cualquier saludo inicial del asistente que venga de la interfaz.
+    const firstUserIndex = messages.findIndex((m) => m.role === "user");
+    const validMessages =
+      firstUserIndex !== -1 ? messages.slice(firstUserIndex) : messages;
 
-    const response = await anthropic.messages.create({
-      model: "claude-sonnet-5",
+    if (validMessages.length === 0) {
+      return NextResponse.json(
+        { error: "No se encontró ningún mensaje de usuario válido." },
+        { status: 400 }
+      );
+    }
+
+    const anthropic = new Anthropic({ apiKey });
+    const model = process.env.ANTHROPIC_MODEL || "claude-opus-5-5";
+
+    // Activamos streaming nativo
+    const stream = await anthropic.messages.create({
+      model,
       max_tokens: 1024,
       system: SYSTEM_PROMPT,
-      messages: messages.map((message) => ({
+      messages: validMessages.map((message) => ({
         role: message.role,
         content: message.content,
       })),
+      stream: true,
     });
 
-    const textBlock = response.content.find(
-      (block) => block.type === "text"
-    );
-    const reply = textBlock && "text" in textBlock ? textBlock.text : "";
+    // Creamos un flujo legible de texto plano para el cliente
+    const encoder = new TextEncoder();
+    const readable = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of stream) {
+            if (
+              chunk.type === "content_block_delta" &&
+              chunk.delta.type === "text_delta"
+            ) {
+              controller.enqueue(encoder.encode(chunk.delta.text));
+            }
+          }
+        } catch (streamError) {
+          controller.error(streamError);
+        } finally {
+          controller.close();
+        }
+      },
+    });
 
-    return NextResponse.json({ reply });
+    return new Response(readable, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "no-cache",
+      },
+    });
   } catch (error) {
     console.error("Error en /api/chat:", error);
     return NextResponse.json(
