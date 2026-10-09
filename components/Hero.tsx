@@ -49,7 +49,7 @@ export default function Hero({ onOpenChat }: HeroProps) {
   return (
     <section id="inicio" className="relative min-h-screen w-full bg-zinc-950 flex flex-col justify-between pt-28 pb-10 px-6 md:px-12 overflow-hidden">
       
-      {/* Video Desktop (16:9 Horizontal) - Nítido y luminoso */}
+      {/* Video Desktop (16:9 Horizontal) - Opacidad al máximo */}
       <video
         src="/media/videohero-desktop.mp4"
         autoPlay
@@ -57,10 +57,10 @@ export default function Hero({ onOpenChat }: HeroProps) {
         muted
         playsInline
         preload="metadata"
-        className="hidden md:block absolute inset-0 z-0 h-full w-full object-cover object-center opacity-90 pointer-events-none"
+        className="hidden md:block absolute inset-0 z-0 h-full w-full object-cover object-center opacity-100 pointer-events-none"
       />
 
-      {/* Video Móvil (9:16 Vertical) - Nítido y luminoso */}
+      {/* Video Móvil (9:16 Vertical) - Opacidad al máximo */}
       <video
         src="/media/videohero.mp4"
         autoPlay
@@ -68,8 +68,11 @@ export default function Hero({ onOpenChat }: HeroProps) {
         muted
         playsInline
         preload="metadata"
-        className="block md:hidden absolute inset-0 z-0 h-full w-full object-cover object-top opacity-90 pointer-events-none"
+        className="block md:hidden absolute inset-0 z-0 h-full w-full object-cover object-top opacity-100 pointer-events-none"
       />
+
+      {/* Capa de oscurecimiento totalmente pareja al 25% (20-25% para legibilidad sin perder la cara) */}
+      <div className="absolute inset-0 z-0 bg-black/25 pointer-events-none" />
 
       {/* Lateral izquierdo: Redes sociales discretas */}
       <div className="hidden md:flex absolute left-8 top-1/2 z-20 -translate-y-1/2 flex-col items-center gap-6">
