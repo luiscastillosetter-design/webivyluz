@@ -1,17 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { 
   Play, 
   Clock, 
   Calendar, 
   User, 
   Search, 
-  ExternalLink, 
-  Sparkles 
+  ExternalLink 
 } from "lucide-react";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { client } from "../../sanity/lib/client";
+import { urlForImage } from "../../sanity/lib/image";
 
 function YoutubeIcon({ className = "h-4 w-4" }: { className?: string }) {
   return (
@@ -20,8 +22,6 @@ function YoutubeIcon({ className = "h-4 w-4" }: { className?: string }) {
     </svg>
   );
 }
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 
 interface Predica {
   id: string;
@@ -42,7 +42,7 @@ const CATEGORIES = [
   "Universidad de la Vida",
 ];
 
-const PREDICAS_DATA: Predica[] = [
+const DEFAULT_PREDICAS: Predica[] = [
   {
     id: "1",
     title: "Caminando en la Luz de su Propósito",
@@ -106,10 +106,46 @@ const PREDICAS_DATA: Predica[] = [
 ];
 
 export default function PredicasPage() {
+  const [predicas, setPredicas] = useState<Predica[]>(DEFAULT_PREDICAS);
   const [selectedCategory, setSelectedCategory] = useState("Todas");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredPredicas = PREDICAS_DATA.filter((item) => {
+  useEffect(() => {
+    async function fetchPredicas() {
+      try {
+        const query = `*[_type == "predica"] | order(date desc) {
+          _id,
+          title,
+          series,
+          speaker,
+          date,
+          duration,
+          youtubeUrl,
+          thumbnail
+        }`;
+        const data = await client.fetch(query);
+        if (data && data.length > 0) {
+          const formatted: Predica[] = data.map((item: any) => ({
+            id: item._id,
+            title: item.title,
+            series: item.series || "Series Dominicales",
+            speaker: item.speaker || "Pastor Orlando",
+            date: item.date || "Fecha reciente",
+            duration: item.duration || "45 min",
+            image: item.thumbnail ? urlForImage(item.thumbnail) : "/media/iglesiaiviluz_20260310_p_3849944592100178236_1_3849938660733597282.webp",
+            youtubeUrl: item.youtubeUrl || "https://www.youtube.com/@iglesiaiviluz",
+          }));
+          setPredicas(formatted);
+        }
+      } catch (err) {
+        console.warn("Usando prédicas predeterminadas:", err);
+      }
+    }
+
+    fetchPredicas();
+  }, []);
+
+  const filteredPredicas = predicas.filter((item) => {
     const matchesCat =
       selectedCategory === "Todas" || item.series === selectedCategory;
     const matchesSearch =
@@ -118,7 +154,7 @@ export default function PredicasPage() {
     return matchesCat && matchesSearch;
   });
 
-  const featuredPredica = PREDICAS_DATA[0];
+  const featuredPredica = predicas[0] || DEFAULT_PREDICAS[0];
 
   return (
     <div className="min-h-screen w-full bg-[#F7F7F5] text-zinc-900 flex flex-col">
@@ -143,11 +179,10 @@ export default function PredicasPage() {
         </div>
       </section>
 
-      {/* Prédica Destacada (Hero Banner de Video) */}
+      {/* Prédica Destacada */}
       <section className="py-12 px-6 md:px-12 max-w-6xl mx-auto w-full">
         <div className="relative rounded-3xl bg-white border border-zinc-200/80 overflow-hidden shadow-xl flex flex-col lg:flex-row">
           
-          {/* Imagen / Miniatura con botón Play */}
           <div className="relative lg:w-3/5 h-64 sm:h-80 lg:h-auto min-h-[300px] bg-zinc-900 group">
             <Image
               src={featuredPredica.image}
@@ -171,7 +206,6 @@ export default function PredicasPage() {
             </span>
           </div>
 
-          {/* Información del Mensaje */}
           <div className="lg:w-2/5 p-6 sm:p-10 flex flex-col justify-between">
             <div>
               <span className="text-xs font-bold uppercase tracking-widest text-amber-800">
@@ -219,8 +253,6 @@ export default function PredicasPage() {
       {/* Filtros de Categorías y Buscador */}
       <section className="py-6 px-6 md:px-12 max-w-6xl mx-auto w-full">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 pb-6 border-b border-zinc-200">
-          
-          {/* Categorías */}
           <div className="flex flex-wrap gap-2 w-full md:w-auto">
             {CATEGORIES.map((cat) => (
               <button
@@ -238,7 +270,6 @@ export default function PredicasPage() {
             ))}
           </div>
 
-          {/* Buscador de prédicas */}
           <div className="relative w-full md:w-72">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
             <input
@@ -249,7 +280,6 @@ export default function PredicasPage() {
               className="w-full pl-10 pr-4 py-2 rounded-full border border-zinc-200 bg-white text-xs text-zinc-800 outline-none focus:border-zinc-900"
             />
           </div>
-
         </div>
       </section>
 
@@ -267,7 +297,6 @@ export default function PredicasPage() {
                 className="group flex flex-col justify-between rounded-3xl border border-zinc-200/80 bg-white overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
               >
                 <div>
-                  {/* Miniatura */}
                   <div className="relative h-48 w-full bg-zinc-900 overflow-hidden">
                     <Image
                       src={predica.image}
@@ -285,7 +314,6 @@ export default function PredicasPage() {
                     </span>
                   </div>
 
-                  {/* Detalle */}
                   <div className="p-5">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800">
                       {predica.series}

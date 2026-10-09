@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { 
   Heart, 
@@ -8,18 +8,76 @@ import {
   Check, 
   Building2, 
   Smartphone, 
+  Globe2, 
   Coins, 
   ShieldCheck, 
   ArrowRight 
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { client } from "@/sanity/lib/client";
+
+interface BankAccounts {
+  bankName: string;
+  accountNumber: string;
+  rif: string;
+  pagoMovilPhone: string;
+  zelleEmail: string;
+  zelleHolder: string;
+  binancePayId: string;
+  usdtWallet: string;
+}
+
+const DEFAULT_ACCOUNTS: BankAccounts = {
+  bankName: "Banco Provincial (0108)",
+  accountNumber: "0108-0000-00-0000000000",
+  rif: "J-29402194-8",
+  pagoMovilPhone: "0414-0000000",
+  zelleEmail: "donaciones@iglesiaiviluz.com",
+  zelleHolder: "Iglesia Iviluz Oficial",
+  binancePayId: "800294021",
+  usdtWallet: "TLvxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+};
 
 export default function DarPage() {
-  const [activeTab, setActiveTab] = useState<"nacional" | "zelle" | "binance">("nacional");
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [accounts, setAccounts] = useState<BankAccounts>(DEFAULT_ACCOUNTS);
 
-  const handleCopy = (text: string, key: string) => {
+  useEffect(() => {
+    async function fetchDonaciones() {
+      try {
+        const query = `*[_type == "donacion"][0] {
+          bankName,
+          accountNumber,
+          rif,
+          pagoMovilPhone,
+          zelleEmail,
+          zelleHolder,
+          binancePayId,
+          usdtWallet
+        }`;
+        const data = await client.fetch(query);
+        if (data) {
+          setAccounts({
+            bankName: data.bankName || DEFAULT_ACCOUNTS.bankName,
+            accountNumber: data.accountNumber || DEFAULT_ACCOUNTS.accountNumber,
+            rif: data.rif || DEFAULT_ACCOUNTS.rif,
+            pagoMovilPhone: data.pagoMovilPhone || DEFAULT_ACCOUNTS.pagoMovilPhone,
+            zelleEmail: data.zelleEmail || DEFAULT_ACCOUNTS.zelleEmail,
+            zelleHolder: data.zelleHolder || DEFAULT_ACCOUNTS.zelleHolder,
+            binancePayId: data.binancePayId || DEFAULT_ACCOUNTS.binancePayId,
+            usdtWallet: data.usdtWallet || DEFAULT_ACCOUNTS.usdtWallet,
+          });
+        }
+      } catch (err) {
+        console.warn("Usando cuentas bancarias predeterminadas:", err);
+      }
+    }
+
+    fetchDonaciones();
+  }, []);
+
+  const copyToClipboard = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
     setCopiedKey(key);
     setTimeout(() => setCopiedKey(null), 2000);
@@ -29,323 +87,288 @@ export default function DarPage() {
     <div className="min-h-screen w-full bg-[#F7F7F5] text-zinc-900 flex flex-col">
       <Header />
 
-      {/* Cabecera Inspiracional */}
-      <section className="pt-36 pb-16 px-6 md:px-12 bg-zinc-950 text-white relative overflow-hidden">
-        <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/80 via-zinc-950 to-zinc-950 pointer-events-none" />
+      {/* Hero Principal */}
+      <section className="pt-36 pb-20 px-6 md:px-12 bg-zinc-950 text-white relative overflow-hidden">
+        <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/80 via-zinc-950/90 to-zinc-950 pointer-events-none" />
         <div className="relative z-10 max-w-4xl mx-auto text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-300/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-amber-200 mb-6">
-            Generosidad y Gratitud
-          </span>
-          <h1 className="text-4xl sm:text-6xl font-black uppercase tracking-tight text-white leading-tight">
-            OFRENDAS Y DIEZMOS
+          
+          <div className="inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-300/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-amber-200 mb-6">
+            <Heart className="h-3.5 w-3.5 fill-current" />
+            Generosidad que Transforma
+          </div>
+
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-black uppercase tracking-tight text-white leading-tight">
+            DAR Y DIEZMAR
           </h1>
-          <p className="mt-5 text-sm sm:text-base text-zinc-300 max-w-2xl mx-auto leading-relaxed">
-            &ldquo;Cada uno debe dar según lo que haya decidido en su corazón, no con tristeza ni por obligación, porque Dios ama al que da con alegría.&rdquo;
+
+          <p className="mt-6 text-base sm:text-lg text-zinc-300 max-w-2xl mx-auto leading-relaxed">
+            &ldquo;Cada uno dé como propuso en su corazón: no con tristeza, ni por necesidad, porque Dios ama al dador alegre.&rdquo;
             <span className="block mt-2 font-bold text-accent-cream text-xs tracking-wider uppercase">
-              — 2 Corintios 9:7 (TLA)
+              — 2 Corintios 9:7
             </span>
           </p>
         </div>
       </section>
 
-      {/* Contenedor Principal de Métodos de Donación */}
-      <section className="py-16 px-6 md:px-12 max-w-4xl mx-auto w-full flex-grow">
-        
-        {/* Selector de Pestañas */}
-        <div className="grid grid-cols-3 gap-2.5 p-1.5 rounded-2xl bg-zinc-200/70 mb-10 max-w-xl mx-auto">
-          <button
-            type="button"
-            onClick={() => setActiveTab("nacional")}
-            className={`flex items-center justify-center gap-2 py-3 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              activeTab === "nacional"
-                ? "bg-white text-zinc-950 shadow-md"
-                : "text-zinc-600 hover:text-zinc-950"
-            }`}
-          >
-            <Building2 className="h-4 w-4 shrink-0" />
-            <span className="hidden sm:inline">Bancos Nacionales</span>
-            <span className="sm:hidden">Bolívares</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("zelle")}
-            className={`flex items-center justify-center gap-2 py-3 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              activeTab === "zelle"
-                ? "bg-white text-zinc-950 shadow-md"
-                : "text-zinc-600 hover:text-zinc-950"
-            }`}
-          >
-            <Smartphone className="h-4 w-4 shrink-0" />
-            <span>Zelle (USD)</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("binance")}
-            className={`flex items-center justify-center gap-2 py-3 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              activeTab === "binance"
-                ? "bg-white text-zinc-950 shadow-md"
-                : "text-zinc-600 hover:text-zinc-950"
-            }`}
-          >
-            <Coins className="h-4 w-4 shrink-0" />
-            <span>Binance / USDT</span>
-          </button>
+      {/* Métodos de Donación */}
+      <section className="py-16 px-6 md:px-12 max-w-5xl mx-auto w-full flex-grow">
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <span className="text-xs font-bold uppercase tracking-[0.25em] text-zinc-400">
+            Canales Habilitados
+          </span>
+          <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tight text-zinc-900 mt-2">
+            Cuentas Oficiales de la Casa
+          </h2>
+          <p className="text-xs sm:text-sm text-zinc-500 mt-2">
+            Haz clic en cualquier dato para copiarlo directamente a tu portapapeles.
+          </p>
         </div>
 
-        {/* Contenido: Bancos Nacionales */}
-        {activeTab === "nacional" && (
-          <div className="flex flex-col gap-6 rounded-3xl border border-zinc-200/80 bg-white p-6 sm:p-10 shadow-lg">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          {/* Transferencia Nacional */}
+          <div className="rounded-3xl border border-zinc-200/80 bg-white p-6 sm:p-8 shadow-sm hover:shadow-xl transition-all flex flex-col justify-between">
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-amber-800">
-                Venezuela · Cuentas Oficiales
-              </span>
-              <h2 className="text-2xl font-black uppercase tracking-tight text-zinc-900 mt-1">
-                Transferencia y Pago Móvil
-              </h2>
-              <p className="text-xs text-zinc-500 mt-1">
-                Haz clic en cualquier dato para copiarlo automáticamente al portapapeles.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              
-              {/* Tarjeta Cuenta Corriente */}
-              <div className="rounded-2xl border border-zinc-100 bg-[#F7F7F5] p-5 flex flex-col justify-between gap-4">
-                <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block mb-1">
-                    Cuenta Bancaria Corriente
-                  </span>
-                  <p className="text-sm font-bold text-zinc-900">Banco Provincial</p>
-                  <p className="text-xs text-zinc-600 mt-1">Titular: Iglesia Iviluz</p>
-                  <p className="text-xs font-mono text-zinc-800 mt-2 bg-white px-3 py-2 rounded-lg border border-zinc-200 select-all">
-                    0108-0000-00-0000000000
-                  </p>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-12 w-12 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center">
+                  <Building2 className="h-6 w-6" />
                 </div>
-                <button
-                  type="button"
-                  onClick={() => handleCopy("01080000000000000000", "provincial")}
-                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-zinc-900 text-white text-xs font-bold uppercase tracking-wider hover:bg-zinc-800 transition-colors cursor-pointer"
-                >
-                  {copiedKey === "provincial" ? (
-                    <>
-                      <Check className="h-3.5 w-3.5 text-amber-300" />
-                      ¡Cuenta Copiada!
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="h-3.5 w-3.5" />
-                      Copiar Número de Cuenta
-                    </>
-                  )}
-                </button>
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">
+                    Venezuela · Bolívares
+                  </span>
+                  <h3 className="text-lg font-black uppercase text-zinc-900 tracking-tight">
+                    Transferencia Bancaria
+                  </h3>
+                </div>
               </div>
 
-              {/* Tarjeta Pago Móvil */}
-              <div className="rounded-2xl border border-zinc-100 bg-[#F7F7F5] p-5 flex flex-col justify-between gap-4">
+              <div className="space-y-4 text-xs">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block mb-1">
+                  <span className="text-zinc-400 block text-[11px]">Banco:</span>
+                  <span className="font-bold text-zinc-800">{accounts.bankName}</span>
+                </div>
+
+                <div>
+                  <span className="text-zinc-400 block text-[11px]">Número de Cuenta:</span>
+                  <button
+                    onClick={() => copyToClipboard(accounts.accountNumber, "acc")}
+                    className="flex items-center justify-between w-full p-3 mt-1 rounded-xl bg-[#F7F7F5] hover:bg-zinc-100 font-mono text-zinc-900 text-xs transition-colors cursor-pointer text-left"
+                  >
+                    <span>{accounts.accountNumber}</span>
+                    {copiedKey === "acc" ? (
+                      <span className="text-emerald-600 font-bold flex items-center gap-1 text-[11px]">
+                        <Check className="h-3.5 w-3.5" /> Copiado
+                      </span>
+                    ) : (
+                      <Copy className="h-3.5 w-3.5 text-zinc-400" />
+                    )}
+                  </button>
+                </div>
+
+                <div>
+                  <span className="text-zinc-400 block text-[11px]">RIF Titular:</span>
+                  <button
+                    onClick={() => copyToClipboard(accounts.rif, "rif")}
+                    className="flex items-center justify-between w-full p-3 mt-1 rounded-xl bg-[#F7F7F5] hover:bg-zinc-100 font-mono text-zinc-900 text-xs transition-colors cursor-pointer text-left"
+                  >
+                    <span>{accounts.rif}</span>
+                    {copiedKey === "rif" ? (
+                      <span className="text-emerald-600 font-bold flex items-center gap-1 text-[11px]">
+                        <Check className="h-3.5 w-3.5" /> Copiado
+                      </span>
+                    ) : (
+                      <Copy className="h-3.5 w-3.5 text-zinc-400" />
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-zinc-100 text-[11px] text-zinc-400">
+              A nombre de: Iglesia Cristiana Iviluz
+            </div>
+          </div>
+
+          {/* Pago Móvil */}
+          <div className="rounded-3xl border border-zinc-200/80 bg-white p-6 sm:p-8 shadow-sm hover:shadow-xl transition-all flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-12 w-12 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center">
+                  <Smartphone className="h-6 w-6" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">
+                    Venezuela · Inmediato
+                  </span>
+                  <h3 className="text-lg font-black uppercase text-zinc-900 tracking-tight">
                     Pago Móvil Interbancario
-                  </span>
-                  <p className="text-sm font-bold text-zinc-900">Banco Provincial (0108)</p>
-                  <div className="mt-2 flex flex-col gap-1.5 text-xs text-zinc-700">
-                    <div className="flex justify-between bg-white px-3 py-1.5 rounded-lg border border-zinc-200">
-                      <span className="text-zinc-500">RIF:</span>
-                      <span className="font-mono font-bold">J-29402194-8</span>
-                    </div>
-                    <div className="flex justify-between bg-white px-3 py-1.5 rounded-lg border border-zinc-200">
-                      <span className="text-zinc-500">Teléfono:</span>
-                      <span className="font-mono font-bold">0414-0000000</span>
-                    </div>
-                  </div>
+                  </h3>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => handleCopy("J294021948", "rif")}
-                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-zinc-900 text-white text-xs font-bold uppercase tracking-wider hover:bg-zinc-800 transition-colors cursor-pointer"
-                >
-                  {copiedKey === "rif" ? (
-                    <>
-                      <Check className="h-3.5 w-3.5 text-amber-300" />
-                      ¡RIF Copiado!
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="h-3.5 w-3.5" />
-                      Copiar Datos de Pago Móvil
-                    </>
-                  )}
-                </button>
               </div>
 
-            </div>
-          </div>
-        )}
-
-        {/* Contenido: Zelle */}
-        {activeTab === "zelle" && (
-          <div className="flex flex-col gap-6 rounded-3xl border border-zinc-200/80 bg-white p-6 sm:p-10 shadow-lg">
-            <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-amber-800">
-                Internacional / Estados Unidos
-              </span>
-              <h2 className="text-2xl font-black uppercase tracking-tight text-zinc-900 mt-1">
-                Ofrendas vía Zelle
-              </h2>
-              <p className="text-xs text-zinc-500 mt-1">
-                Puedes realizar tu aporte directamente desde tu aplicación bancaria estadounidense.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-zinc-100 bg-[#F7F7F5] p-6 max-w-lg mx-auto w-full text-center flex flex-col items-center gap-4">
-              <div className="h-12 w-12 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-black text-xl">
-                Z
-              </div>
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block mb-1">
-                  Correo Electrónico Registrado en Zelle
-                </span>
-                <p className="text-base sm:text-lg font-mono font-bold text-zinc-900 bg-white px-4 py-2 rounded-xl border border-zinc-200 select-all">
-                  iviluzchurch@gmail.com
-                </p>
-                <p className="text-xs text-zinc-500 mt-2">
-                  Titular: Iglesia Iviluz
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => handleCopy("iviluzchurch@gmail.com", "zelle")}
-                className="flex items-center justify-center gap-2 w-full max-w-xs py-3 rounded-xl bg-zinc-900 text-white text-xs font-bold uppercase tracking-wider hover:bg-zinc-800 transition-colors cursor-pointer"
-              >
-                {copiedKey === "zelle" ? (
-                  <>
-                    <Check className="h-4 w-4 text-amber-300" />
-                    ¡Correo Copiado!
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-4 w-4" />
-                    Copiar Correo de Zelle
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Contenido: Binance Pay / USDT */}
-        {activeTab === "binance" && (
-          <div className="flex flex-col gap-6 rounded-3xl border border-zinc-200/80 bg-white p-6 sm:p-10 shadow-lg">
-            <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-amber-800">
-                Criptoactivos Globales
-              </span>
-              <h2 className="text-2xl font-black uppercase tracking-tight text-zinc-900 mt-1">
-                Binance Pay y USDT
-              </h2>
-              <p className="text-xs text-zinc-500 mt-1">
-                Envía tus diezmos u ofrendas sin comisiones intermedias a través del ecosistema Binance.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              
-              {/* Binance Pay ID */}
-              <div className="rounded-2xl border border-zinc-100 bg-[#F7F7F5] p-5 flex flex-col justify-between gap-4">
+              <div className="space-y-4 text-xs">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block mb-1">
-                    Binance Pay ID (Cero Comisión)
-                  </span>
-                  <p className="text-sm font-bold text-zinc-900">Identificador Oficial</p>
-                  <p className="text-xs font-mono font-bold text-zinc-900 mt-2 bg-white px-3 py-2 rounded-lg border border-zinc-200 select-all">
-                    800294021
-                  </p>
+                  <span className="text-zinc-400 block text-[11px]">Banco Destino:</span>
+                  <span className="font-bold text-zinc-800">{accounts.bankName}</span>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => handleCopy("800294021", "payid")}
-                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-zinc-900 text-white text-xs font-bold uppercase tracking-wider hover:bg-zinc-800 transition-colors cursor-pointer"
-                >
-                  {copiedKey === "payid" ? (
-                    <>
-                      <Check className="h-3.5 w-3.5 text-amber-300" />
-                      ¡ID Copiado!
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="h-3.5 w-3.5" />
-                      Copiar Pay ID
-                    </>
-                  )}
-                </button>
-              </div>
 
-              {/* Billetera USDT TRC20 */}
-              <div className="rounded-2xl border border-zinc-100 bg-[#F7F7F5] p-5 flex flex-col justify-between gap-4">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block mb-1">
-                    Red USDT (TRC-20)
-                  </span>
-                  <p className="text-sm font-bold text-zinc-900">Dirección de Billetera</p>
-                  <p className="text-[11px] font-mono text-zinc-700 mt-2 bg-white px-3 py-2 rounded-lg border border-zinc-200 truncate select-all">
-                    TYD9xK8...LzQp2M4x91
-                  </p>
+                  <span className="text-zinc-400 block text-[11px]">Teléfono Afiliado:</span>
+                  <button
+                    onClick={() => copyToClipboard(accounts.pagoMovilPhone, "pm-tel")}
+                    className="flex items-center justify-between w-full p-3 mt-1 rounded-xl bg-[#F7F7F5] hover:bg-zinc-100 font-mono text-zinc-900 text-xs transition-colors cursor-pointer text-left"
+                  >
+                    <span>{accounts.pagoMovilPhone}</span>
+                    {copiedKey === "pm-tel" ? (
+                      <span className="text-emerald-600 font-bold flex items-center gap-1 text-[11px]">
+                        <Check className="h-3.5 w-3.5" /> Copiado
+                      </span>
+                    ) : (
+                      <Copy className="h-3.5 w-3.5 text-zinc-400" />
+                    )}
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => handleCopy("TYD9xK8IviluzChurchOficialLzQp2M4x91", "trc20")}
-                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-zinc-900 text-white text-xs font-bold uppercase tracking-wider hover:bg-zinc-800 transition-colors cursor-pointer"
-                >
-                  {copiedKey === "trc20" ? (
-                    <>
-                      <Check className="h-3.5 w-3.5 text-amber-300" />
-                      ¡Dirección Copiada!
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="h-3.5 w-3.5" />
-                      Copiar Billetera TRC-20
-                    </>
-                  )}
-                </button>
+
+                <div>
+                  <span className="text-zinc-400 block text-[11px]">RIF:</span>
+                  <button
+                    onClick={() => copyToClipboard(accounts.rif, "pm-rif")}
+                    className="flex items-center justify-between w-full p-3 mt-1 rounded-xl bg-[#F7F7F5] hover:bg-zinc-100 font-mono text-zinc-900 text-xs transition-colors cursor-pointer text-left"
+                  >
+                    <span>{accounts.rif}</span>
+                    {copiedKey === "pm-rif" ? (
+                      <span className="text-emerald-600 font-bold flex items-center gap-1 text-[11px]">
+                        <Check className="h-3.5 w-3.5" /> Copiado
+                      </span>
+                    ) : (
+                      <Copy className="h-3.5 w-3.5 text-zinc-400" />
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-zinc-100 text-[11px] text-zinc-400">
+              Disponible 24/7 desde cualquier entidad bancaria
+            </div>
+          </div>
+
+          {/* Zelle */}
+          <div className="rounded-3xl border border-zinc-200/80 bg-white p-6 sm:p-8 shadow-sm hover:shadow-xl transition-all flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-12 w-12 rounded-2xl bg-purple-100 text-purple-800 flex items-center justify-center">
+                  <Globe2 className="h-6 w-6" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">
+                    Internacional · USD
+                  </span>
+                  <h3 className="text-lg font-black uppercase text-zinc-900 tracking-tight">
+                    Zelle Oficial
+                  </h3>
+                </div>
               </div>
 
-            </div>
-          </div>
-        )}
+              <div className="space-y-4 text-xs">
+                <div>
+                  <span className="text-zinc-400 block text-[11px]">Correo Zelle:</span>
+                  <button
+                    onClick={() => copyToClipboard(accounts.zelleEmail, "zelle")}
+                    className="flex items-center justify-between w-full p-3 mt-1 rounded-xl bg-[#F7F7F5] hover:bg-zinc-100 font-mono text-zinc-900 text-xs transition-colors cursor-pointer text-left"
+                  >
+                    <span>{accounts.zelleEmail}</span>
+                    {copiedKey === "zelle" ? (
+                      <span className="text-emerald-600 font-bold flex items-center gap-1 text-[11px]">
+                        <Check className="h-3.5 w-3.5" /> Copiado
+                      </span>
+                    ) : (
+                      <Copy className="h-3.5 w-3.5 text-zinc-400" />
+                    )}
+                  </button>
+                </div>
 
-        {/* Tarjeta de Destino a Acción Social: Buena Voluntad */}
-        <div className="mt-12 rounded-3xl border border-zinc-200/80 bg-white p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">
-          <div className="flex items-center gap-4 text-left">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-800">
-              <Heart className="h-6 w-6 fill-current" />
+                <div>
+                  <span className="text-zinc-400 block text-[11px]">Titular:</span>
+                  <span className="font-bold text-zinc-800">{accounts.zelleHolder}</span>
+                </div>
+              </div>
             </div>
-            <div>
-              <h3 className="text-base font-bold text-zinc-900">
-                ¿Deseas apoyar a familias vulnerables?
-              </h3>
-              <p className="text-xs text-zinc-500 mt-0.5">
-                Conoce <strong>Buena Voluntad</strong>, el brazo de acción social y ayuda comunitaria de Iglesia Iviluz.
-              </p>
+
+            <div className="mt-6 pt-4 border-t border-zinc-100 text-[11px] text-zinc-400">
+              Coloca en nota: &ldquo;Ofrenda Iviluz&rdquo;
             </div>
           </div>
-          <Link
-            href="/buena-voluntad"
-            className="shrink-0 inline-flex items-center gap-2 rounded-full bg-zinc-900 px-6 py-3 text-xs font-bold uppercase tracking-wider text-white hover:bg-zinc-800 transition-colors cursor-pointer"
-          >
-            Ver Buena Voluntad
-            <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
+
+          {/* Cripto / Binance Pay */}
+          <div className="rounded-3xl border border-zinc-200/80 bg-white p-6 sm:p-8 shadow-sm hover:shadow-xl transition-all flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-12 w-12 rounded-2xl bg-amber-100 text-amber-900 flex items-center justify-center">
+                  <Coins className="h-6 w-6" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">
+                    Binance Pay & USDT
+                  </span>
+                  <h3 className="text-lg font-black uppercase text-zinc-900 tracking-tight">
+                    Criptoactivos
+                  </h3>
+                </div>
+              </div>
+
+              <div className="space-y-4 text-xs">
+                <div>
+                  <span className="text-zinc-400 block text-[11px]">Binance Pay ID (0% comisión):</span>
+                  <button
+                    onClick={() => copyToClipboard(accounts.binancePayId, "binance")}
+                    className="flex items-center justify-between w-full p-3 mt-1 rounded-xl bg-[#F7F7F5] hover:bg-zinc-100 font-mono text-zinc-900 text-xs transition-colors cursor-pointer text-left"
+                  >
+                    <span>{accounts.binancePayId}</span>
+                    {copiedKey === "binance" ? (
+                      <span className="text-emerald-600 font-bold flex items-center gap-1 text-[11px]">
+                        <Check className="h-3.5 w-3.5" /> Copiado
+                      </span>
+                    ) : (
+                      <Copy className="h-3.5 w-3.5 text-zinc-400" />
+                    )}
+                  </button>
+                </div>
+
+                <div>
+                  <span className="text-zinc-400 block text-[11px]">Billetera USDT (Red TRC-20):</span>
+                  <button
+                    onClick={() => copyToClipboard(accounts.usdtWallet, "usdt")}
+                    className="flex items-center justify-between w-full p-3 mt-1 rounded-xl bg-[#F7F7F5] hover:bg-zinc-100 font-mono text-zinc-900 text-xs transition-colors cursor-pointer text-left truncate"
+                  >
+                    <span className="truncate">{accounts.usdtWallet}</span>
+                    {copiedKey === "usdt" ? (
+                      <span className="text-emerald-600 font-bold flex items-center gap-1 text-[11px] shrink-0 ml-2">
+                        <Check className="h-3.5 w-3.5" /> Copiado
+                      </span>
+                    ) : (
+                      <Copy className="h-3.5 w-3.5 text-zinc-400 shrink-0 ml-2" />
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-zinc-100 text-[11px] text-zinc-400">
+              Verifica siempre que la red sea Tron (TRC-20)
+            </div>
+          </div>
+
         </div>
 
         {/* Nota de Transparencia */}
-        <div className="mt-8 flex items-center justify-center gap-2 text-xs text-zinc-400 text-center">
-          <ShieldCheck className="h-4 w-4 text-zinc-500" />
-          <span>Todas las donaciones son administradas con estricta mayordomía y transparencia.</span>
+        <div className="mt-12 rounded-2xl border border-zinc-200 bg-white p-6 flex items-center gap-4 shadow-sm">
+          <ShieldCheck className="h-8 w-8 text-amber-800 shrink-0" />
+          <p className="text-xs text-zinc-500 leading-relaxed">
+            Cada aporte es administrado con integridad para sustentar el avance de la obra, el mantenimiento de los templos y los programas de acción social en las comunidades a través de <strong>Buena Voluntad</strong>.
+          </p>
         </div>
-
       </section>
 
       <Footer />
