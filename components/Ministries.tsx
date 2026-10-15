@@ -1,45 +1,54 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
+import { Sparkles, Users, Smile, HeartHandshake } from "lucide-react";
 
-interface Ministry {
+interface MinistryCard {
   title: string;
+  category: string;
   description: string;
   image: string;
+  href: string;
   cta: string;
 }
 
-const ministries: Ministry[] = [
-  {
-    title: "COMUNIDAD",
-    description:
-      "No fuimos creados para hacer la vida solos. Únete a una célula y encuentra tu familia espiritual.",
-    image:
-      "/media/iglesiaiviluz_20260310_p_3849944592100178236_3_3849938668644071469.webp",
-    cta: "Únete",
-  },
-  {
-    title: "ADORACIÓN",
-    description:
-      "Levantamos un sonido que transforma atmósferas. Únete a nuestro equipo de alabanza.",
-    image:
-      "/media/iglesiaiviluz_20260310_p_3849944592100178236_1_3849938660733597282.webp",
-    cta: "Saber más",
-  },
+const ministries: MinistryCard[] = [
   {
     title: "IVILUZ KIDS",
+    category: "Generación Infantil",
     description:
-      "Formando a la próxima generación con amor, principios y la Palabra de Dios desde temprana edad.",
-    image:
-      "/media/iglesiaiviluz_20260310_p_3849944592100178236_5_3849938684112643248.webp",
-    cta: "Saber más",
+      "Un ambiente dinámico, seguro y lleno del amor de Dios donde los niños aprenden principios bíblicos prácticos para sus vidas.",
+    image: "/media/iglesiaiviluz_20260310_p_3849944592100178236_2_3849938664567168038.webp",
+    href: "/ministerios#generacionales",
+    cta: "Conocer Más",
   },
   {
-    title: "BAUTIZOS",
+    title: "IVILUZ TEENS",
+    category: "Adolescentes con Propósito",
     description:
-      "Tu siguiente paso de fe. Declara públicamente tu nueva vida en Cristo.",
-    image: "/media/bautizos.webp",
-    cta: "Únete",
+      "Acompañamiento, fe y amistad sólida para adolescentes en una etapa crucial de identidad y decisiones.",
+    image: "/media/iglesiaiviluz_20260310_p_3849944592100178236_5_3849938684112643248.webp",
+    href: "/ministerios#generacionales",
+    cta: "Conocer Más",
+  },
+  {
+    title: "SOMOS LUZ",
+    category: "Ministerio de Jóvenes",
+    description:
+      "Un movimiento apasionado que enciende la luz de Cristo en colegios, universidades y en toda la ciudad.",
+    image: "/media/iglesiaiviluz_20260310_p_3849944592100178236_3_3849938668644071469.webp",
+    href: "/ministerios#generacionales",
+    cta: "Conocer Más",
+  },
+  {
+    title: "MINISTERIO DE ADULTOS",
+    category: "Familias & Matrimonios",
+    description:
+      "Edificación integral para hombres, mujeres y matrimonios sobre la roca firme de la Palabra de Dios.",
+    image: "/media/iglesiaiviluz_20260310_p_3849944592100178236_6_3849938690672513949.webp",
+    href: "/ministerios#generacionales",
+    cta: "Conocer Más",
   },
 ];
 
@@ -53,29 +62,32 @@ export default function Ministries() {
             index % 2 !== 0 ? "md:flex-row-reverse" : ""
           }`}
         >
-          <div className="relative min-h-[50vh] w-full md:min-h-[60vh] md:w-1/2">
+          <div className="relative min-h-[40vh] sm:min-h-[50vh] w-full md:w-1/2 bg-zinc-900">
             <Image
               src={ministry.image}
               alt={ministry.title}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
-              className="object-cover"
+              className="object-cover opacity-90"
             />
           </div>
 
-          <div className="flex w-full flex-col items-start justify-center bg-[#F7F7F5] p-12 md:w-1/2 lg:p-24">
-            <h3 className="mb-4 text-4xl font-black tracking-tighter text-zinc-900 md:text-6xl">
+          <div className="flex w-full flex-col items-start justify-center bg-[#F7F7F5] p-8 md:w-1/2 lg:p-20">
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-[0.25em] text-amber-800 mb-2">
+              {ministry.category}
+            </span>
+            <h3 className="mb-4 text-3xl font-black uppercase tracking-tight text-zinc-900 md:text-5xl">
               {ministry.title}
             </h3>
-            <p className="mb-8 text-lg text-zinc-500">
+            <p className="mb-6 text-xs sm:text-sm text-zinc-600 leading-relaxed max-w-lg">
               {ministry.description}
             </p>
-            <a
-              href="#contacto"
-              className="border border-zinc-900 px-6 py-3 text-zinc-900 transition-colors hover:bg-zinc-900 hover:text-white"
+            <Link
+              href={ministry.href}
+              className="rounded-full border border-zinc-900 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-zinc-900 transition-all hover:bg-zinc-900 hover:text-white"
             >
               {ministry.cta}
-            </a>
+            </Link>
           </div>
         </div>
       ))}

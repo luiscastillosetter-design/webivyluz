@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Sparkles, MapPin, PlayCircle, HeartHandshake, MessageCircle } from "lucide-react";
+import { Sparkles, Users, MapPin, PlayCircle, HeartHandshake, MessageCircle } from "lucide-react";
 
 function InstagramIcon() {
   return (
@@ -26,6 +26,12 @@ const QUICK_ACTIONS = [
     icon: Sparkles,
   },
   {
+    title: "Nuestros Ministerios",
+    subtitle: "Kids, Teens, Jóvenes, Adultos",
+    href: "/ministerios",
+    icon: Users,
+  },
+  {
     title: "Nuestras Sedes",
     subtitle: "Horarios y ubicación",
     href: "/sedes",
@@ -47,9 +53,9 @@ const QUICK_ACTIONS = [
 
 export default function Hero({ onOpenChat }: HeroProps) {
   return (
-    <section id="inicio" className="relative min-h-screen w-full bg-zinc-950 flex flex-col justify-between pt-28 pb-10 px-6 md:px-12 overflow-hidden">
+    <section id="inicio" className="relative min-h-screen w-full bg-zinc-950 flex flex-col justify-between pt-24 pb-8 px-4 sm:px-6 md:px-12 overflow-hidden">
       
-      {/* Video Desktop (16:9 Horizontal) - Opacidad al máximo */}
+      {/* Video Desktop (16:9 Horizontal) */}
       <video
         src="/media/videohero-desktop.mp4"
         autoPlay
@@ -60,7 +66,7 @@ export default function Hero({ onOpenChat }: HeroProps) {
         className="hidden md:block absolute inset-0 z-0 h-full w-full object-cover object-center opacity-100 pointer-events-none"
       />
 
-      {/* Video Móvil (9:16 Vertical) - Opacidad al máximo */}
+      {/* Video Móvil (9:16 Vertical) */}
       <video
         src="/media/videohero.mp4"
         autoPlay
@@ -71,7 +77,7 @@ export default function Hero({ onOpenChat }: HeroProps) {
         className="block md:hidden absolute inset-0 z-0 h-full w-full object-cover object-top opacity-100 pointer-events-none"
       />
 
-      {/* Capa de oscurecimiento totalmente pareja al 25% (20-25% para legibilidad sin perder la cara) */}
+      {/* Capa de oscurecimiento equilibrada para legibilidad */}
       <div className="absolute inset-0 z-0 bg-black/70 pointer-events-none" />
 
       {/* Lateral izquierdo: Redes sociales discretas */}
@@ -95,15 +101,15 @@ export default function Hero({ onOpenChat }: HeroProps) {
       </div>
 
       {/* Centro: Título Principal y Visión Oficial */}
-      <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center justify-center text-center my-auto pt-6">
+      <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center justify-center text-center my-auto pt-4">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/40 px-4 py-1.5 backdrop-blur-md mb-6 shadow-lg"
+          className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/40 px-4 py-1.5 backdrop-blur-md mb-4 sm:mb-6 shadow-lg"
         >
           <span className="h-2 w-2 rounded-full bg-amber-300 animate-pulse" />
-          <span className="text-[11px] font-bold tracking-widest uppercase text-white">
+          <span className="text-[10px] sm:text-[11px] font-bold tracking-widest uppercase text-white">
             Iglesia Iviluz · Barquisimeto
           </span>
         </motion.div>
@@ -122,22 +128,22 @@ export default function Hero({ onOpenChat }: HeroProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="mt-6 max-w-2xl text-sm sm:text-base md:text-lg text-white font-medium leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
+          className="mt-4 sm:mt-6 max-w-2xl text-xs sm:text-base md:text-lg text-white font-medium leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] px-2"
         >
           &ldquo;Ganar almas y formarlos como discípulos de Cristo, que vayan y sean luz en las naciones.&rdquo;
         </motion.p>
 
-        {/* Botón rápido para abrir el chat de consejería */}
+        {/* Botón de consejería pastoral */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.5 }}
-          className="mt-8 flex flex-wrap justify-center gap-4"
+          className="mt-6 sm:mt-8 flex flex-wrap justify-center gap-4"
         >
           <button
             type="button"
             onClick={onOpenChat}
-            className="inline-flex items-center gap-2.5 rounded-full bg-accent-cream px-6 py-3 text-xs font-bold uppercase tracking-wider text-zinc-950 transition-all duration-300 hover:bg-white hover:scale-105 shadow-2xl cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-full bg-accent-cream px-6 py-3 text-xs font-bold uppercase tracking-wider text-zinc-950 transition-all duration-300 hover:bg-white hover:scale-105 shadow-2xl cursor-pointer"
           >
             <MessageCircle className="h-4 w-4 text-zinc-950" />
             ¿Necesitas hablar con alguien?
@@ -145,34 +151,35 @@ export default function Hero({ onOpenChat }: HeroProps) {
         </motion.div>
       </div>
 
-      {/* Parte Inferior: Los 4 Accesos Rápidos */}
+      {/* Parte Inferior: Los 5 Accesos Rápidos (Adaptables a Móvil y PC) */}
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.6 }}
-        className="relative z-10 mx-auto w-full max-w-6xl pt-6"
+        className="relative z-10 mx-auto w-full max-w-7xl pt-4"
       >
-        <p className="text-center text-[11px] font-bold uppercase tracking-[0.25em] text-white/80 mb-4 drop-shadow">
+        <p className="text-center text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.25em] text-white/80 mb-3 drop-shadow">
           Da tu siguiente paso
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+        {/* Grid de 5 tarjetas: 1 col móvil, 2 col tablet, 5 col desktop */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-3">
           {QUICK_ACTIONS.map((action) => {
             const Icon = action.icon;
             return (
               <Link
                 key={action.href}
                 href={action.href}
-                className="group flex items-center gap-4 rounded-2xl border border-white/20 bg-black/40 p-4 text-left backdrop-blur-xl transition-all duration-300 hover:border-accent-cream/80 hover:bg-black/60 hover:-translate-y-1 shadow-2xl"
+                className="group flex items-center gap-3 rounded-2xl border border-white/20 bg-black/45 p-3.5 text-left backdrop-blur-xl transition-all duration-300 hover:border-accent-cream/80 hover:bg-black/65 hover:-translate-y-1 shadow-xl"
               >
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10 text-accent-cream transition-colors group-hover:bg-accent-cream group-hover:text-zinc-950">
-                  <Icon className="h-5 w-5" />
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-accent-cream transition-colors group-hover:bg-accent-cream group-hover:text-zinc-950">
+                  <Icon className="h-4 w-4" />
                 </div>
-                <div>
-                  <h3 className="text-sm font-bold text-white group-hover:text-amber-200 transition-colors drop-shadow-sm">
+                <div className="min-w-0">
+                  <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-amber-200 transition-colors drop-shadow-sm truncate">
                     {action.title}
                   </h3>
-                  <p className="text-xs text-zinc-200 drop-shadow-sm">
+                  <p className="text-[11px] text-zinc-300 drop-shadow-sm truncate">
                     {action.subtitle}
                   </p>
                 </div>

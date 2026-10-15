@@ -7,13 +7,11 @@ import {
   Send, 
   CheckCircle2, 
   ShieldCheck, 
-  Users, 
-  Calendar, 
-  MessageCircle,
-  Sparkles
+  MessageCircle 
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { supabase } from "@/lib/supabase";
 
 const PRAYER_TYPES = [
   "Salud y Sanidad Física",
@@ -29,8 +27,9 @@ const PRAYER_TYPES = [
 export default function OracionPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [country, setCountry] = useState("Venezuela");
-  const [city, setCity] = useState("");
+  const [city, setCity] = useState("Barquisimeto");
   const [gender, setGender] = useState("");
   const [maritalStatus, setMaritalStatus] = useState("");
   const [birthDate, setBirthDate] = useState("");
@@ -40,14 +39,31 @@ export default function OracionPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSent, setIsSent] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // Simulación lista para webhook con Google Sheets/CRM
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSent(true);
-    }, 600);
+
+    try {
+      const notasCompletas = `PETICIÓN DE ORACIÓN [${prayerType}] | Ciudad: ${city}, ${country} | Género: ${gender || "N/A"} | Edo Civil: ${maritalStatus || "N/A"} | F.Nac: ${birthDate || "N/A"} | Detalle: ${requestText}`;
+
+      await supabase.from("creyentes").insert([
+        {
+          nombre: fullName,
+          telefono: phone || "Sin teléfono",
+          email: email || null,
+          sector_direccion: `${city}, ${country}`,
+          sede: "Auditorio Principal",
+          estado_discipular: "nuevo",
+          peticion_oracion: requestText,
+          notas: notasCompletas,
+        },
+      ]);
+    } catch (err) {
+      console.error(err);
+    }
+
+    setIsSubmitting(false);
+    setIsSent(true);
   };
 
   return (
@@ -74,14 +90,10 @@ export default function OracionPage() {
               — Filipenses 4:6 (TLA)
             </span>
           </p>
-
-          <p className="mt-4 text-xs text-zinc-400 max-w-xl mx-auto">
-            Tenemos un equipo de intercesión comprometido que ora continuamente por cada petición presentada en nuestros servicios y matutinos.
-          </p>
         </div>
       </section>
 
-      {/* Formulario de Petición */}
+      {/* Formulario de Petición Conectado a Supabase */}
       <section className="py-16 px-6 md:px-12 max-w-3xl mx-auto w-full flex-grow">
         <div className="rounded-3xl border border-zinc-200/80 bg-white p-6 sm:p-10 shadow-xl">
           
@@ -94,7 +106,7 @@ export default function OracionPage() {
                 ¡Tu petición ha sido recibida!
               </h2>
               <p className="text-xs sm:text-sm text-zinc-500 max-w-md leading-relaxed">
-                Nuestro equipo de intercesores ya tiene tu motivo en oración delante del Señor. Creemos firmemente que Dios tiene una respuesta de paz para tu vida y tu familia.
+                Nuestro equipo pastoral de intercesores ya tiene tu motivo en oración delante del Señor. Creemos firmemente que Dios tiene una respuesta de paz para tu vida y tu familia.
               </p>
               
               <div className="mt-6 flex flex-wrap justify-center gap-3">
@@ -146,58 +158,55 @@ export default function OracionPage() {
 
                 <div>
                   <label className="text-xs font-bold text-zinc-700 block mb-1">
-                    Correo Electrónico *
+                    WhatsApp de Contacto *
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="Ej: 0412-1234567"
+                    className="w-full rounded-xl border border-zinc-200 bg-[#F7F7F5] p-3 text-xs text-zinc-800 outline-none focus:border-zinc-900 focus:bg-white"
+                  />
+                </div>
+              </div>
+
+              {/* Correo y Ubicación */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-zinc-700 block mb-1">
+                    Correo Electrónico (opcional)
                   </label>
                   <input
                     type="email"
-                    required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="tucorreo@ejemplo.com"
                     className="w-full rounded-xl border border-zinc-200 bg-[#F7F7F5] p-3 text-xs text-zinc-800 outline-none focus:border-zinc-900 focus:bg-white"
                   />
                 </div>
-              </div>
-
-              {/* Ubicación */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs font-bold text-zinc-700 block mb-1">
-                    País de Residencia *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={country}
-                    onChange={(e) => setCountry(e.target.value)}
-                    placeholder="Ej: Venezuela, Colombia, EE.UU."
-                    className="w-full rounded-xl border border-zinc-200 bg-[#F7F7F5] p-3 text-xs text-zinc-800 outline-none focus:border-zinc-900 focus:bg-white"
-                  />
-                </div>
 
                 <div>
                   <label className="text-xs font-bold text-zinc-700 block mb-1">
-                    Ciudad / Estado *
+                    Ciudad / Sector
                   </label>
                   <input
                     type="text"
-                    required
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
-                    placeholder="Ej: Barquisimeto, Lara"
+                    placeholder="Ej: Barquisimeto, Cabudare..."
                     className="w-full rounded-xl border border-zinc-200 bg-[#F7F7F5] p-3 text-xs text-zinc-800 outline-none focus:border-zinc-900 focus:bg-white"
                   />
                 </div>
               </div>
 
-              {/* Sexo, Estado Civil y Fecha de Nacimiento (Petición explícita del Pastor) */}
+              {/* Sexo, Estado Civil y Fecha de Nacimiento */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="text-xs font-bold text-zinc-700 block mb-1">
-                    Sexo *
+                    Sexo
                   </label>
                   <select
-                    required
                     value={gender}
                     onChange={(e) => setGender(e.target.value)}
                     className="w-full rounded-xl border border-zinc-200 bg-[#F7F7F5] p-3 text-xs text-zinc-800 outline-none focus:border-zinc-900 focus:bg-white"
@@ -210,10 +219,9 @@ export default function OracionPage() {
 
                 <div>
                   <label className="text-xs font-bold text-zinc-700 block mb-1">
-                    Estado Civil *
+                    Estado Civil
                   </label>
                   <select
-                    required
                     value={maritalStatus}
                     onChange={(e) => setMaritalStatus(e.target.value)}
                     className="w-full rounded-xl border border-zinc-200 bg-[#F7F7F5] p-3 text-xs text-zinc-800 outline-none focus:border-zinc-900 focus:bg-white"
@@ -229,11 +237,10 @@ export default function OracionPage() {
 
                 <div>
                   <label className="text-xs font-bold text-zinc-700 block mb-1">
-                    Fecha de Nacimiento *
+                    Fecha de Nacimiento
                   </label>
                   <input
                     type="date"
-                    required
                     value={birthDate}
                     onChange={(e) => setBirthDate(e.target.value)}
                     className="w-full rounded-xl border border-zinc-200 bg-[#F7F7F5] p-3 text-xs text-zinc-800 outline-none focus:border-zinc-900 focus:bg-white"
@@ -244,13 +251,13 @@ export default function OracionPage() {
               {/* Tipo de Petición */}
               <div>
                 <label className="text-xs font-bold text-zinc-700 block mb-1">
-                  Área o Tipo de Petición *
+                  Área de tu Petición *
                 </label>
                 <select
                   required
                   value={prayerType}
                   onChange={(e) => setPrayerType(e.target.value)}
-                  className="w-full rounded-xl border border-zinc-200 bg-[#F7F7F5] p-3 text-xs text-zinc-800 outline-none focus:border-zinc-900 focus:bg-white"
+                  className="w-full rounded-xl border border-zinc-200 bg-[#F7F7F5] p-3 text-xs text-zinc-800 outline-none focus:border-zinc-900 focus:bg-white font-bold"
                 >
                   <option value="">Selecciona el área de tu necesidad</option>
                   {PRAYER_TYPES.map((type) => (
@@ -261,7 +268,7 @@ export default function OracionPage() {
                 </select>
               </div>
 
-              {/* Detalle de la Petición */}
+              {/* Detalle */}
               <div>
                 <label className="text-xs font-bold text-zinc-700 block mb-1">
                   Describe tu Petición de Oración *
@@ -271,12 +278,12 @@ export default function OracionPage() {
                   rows={4}
                   value={requestText}
                   onChange={(e) => setRequestText(e.target.value)}
-                  placeholder="Cuéntanos con libertad tu situación para que podamos interceder de manera específica por ti y tu familia..."
+                  placeholder="Cuéntanos tu motivo con toda libertad para que podamos interceder específicamente por ti..."
                   className="w-full rounded-xl border border-zinc-200 bg-[#F7F7F5] p-3 text-xs text-zinc-800 outline-none focus:border-zinc-900 focus:bg-white leading-relaxed"
                 />
               </div>
 
-              {/* Check de Confidencialidad */}
+              {/* Confidencialidad */}
               <div className="flex items-center gap-2 pt-1">
                 <input
                   type="checkbox"
@@ -290,10 +297,9 @@ export default function OracionPage() {
                 </label>
               </div>
 
-              {/* Botón de Envío */}
               <button
                 type="submit"
-                disabled={isSubmitting || !fullName || !email || !requestText || !prayerType}
+                disabled={isSubmitting || !fullName || !phone || !requestText || !prayerType}
                 className="mt-2 flex items-center justify-center gap-2 rounded-full bg-accent-cream py-3.5 text-xs font-bold uppercase tracking-wider text-zinc-950 transition-all hover:bg-zinc-900 hover:text-white disabled:opacity-40 shadow-md cursor-pointer"
               >
                 <Send className="h-4 w-4" />
@@ -304,30 +310,6 @@ export default function OracionPage() {
           )}
 
         </div>
-
-        {/* Tarjeta de Apoyo si necesita hablar ahora mismo */}
-        <div className="mt-10 rounded-2xl border border-zinc-200 bg-white p-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-zinc-900">
-              <MessageCircle className="h-5 w-5" />
-            </div>
-            <div>
-              <h4 className="text-xs font-bold text-zinc-900">
-                ¿Estás atravesando un momento de crisis urgente?
-              </h4>
-              <p className="text-[11px] text-zinc-500">
-                Nuestro asistente pastoral está disponible 24/7 o puedes agendar una cita directa.
-              </p>
-            </div>
-          </div>
-          <Link
-            href="/agendar"
-            className="shrink-0 rounded-full bg-zinc-900 px-5 py-2 text-[11px] font-bold uppercase tracking-wider text-white hover:bg-zinc-800 transition-colors"
-          >
-            Agendar Consejería
-          </Link>
-        </div>
-
       </section>
 
       <Footer />
